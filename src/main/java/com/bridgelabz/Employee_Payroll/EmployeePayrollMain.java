@@ -15,6 +15,6 @@ public class EmployeePayrollMain {
 		
 		Scanner ConsoleInputReader = new Scanner(System.in);	
 		employPayrollService.readEmployeePayrollData(ConsoleInputReader);
-		employPayrollService.writeEmployeeData(IOService.CONSOLE_IO);
+		employPayrollService.writeEmployeePayrollData(IOService.CONSOLE_IO);
 	}
 }

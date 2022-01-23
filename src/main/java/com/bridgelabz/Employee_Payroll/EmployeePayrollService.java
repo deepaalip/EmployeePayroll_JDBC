@@ -6,48 +6,55 @@ import java.util.List;
 import java.util.Scanner;
 
 public class EmployeePayrollService {
+	
+	private List<EmployeePayroll> employeePayrollList;
+	private EmployeePayrollJDBC employeePayrollDBService;
+
 	public enum IOService {
 		CONSOLE_IO, FILE_IO, DB_IO, REST_IO
 	}
-
-	List<EmployeePayroll> employeePayrollList;
-
+	
+	public EmployeePayrollService() {
+		employeePayrollDBService =  EmployeePayrollJDBC.getInstance();
+	}
+	
 	public EmployeePayrollService(List<EmployeePayroll> employeePayrollList) {
-		super();
+		this();
 		this.employeePayrollList = employeePayrollList;
 	}
-
-	void readEmployeePayrollData(Scanner ConsoleInputReader) {
-		System.out.println("Enter Employee ID: ");
-		int id = ConsoleInputReader.nextInt();
-
-		System.out.println("Enter Employee Name: ");
-		String name = ConsoleInputReader.next();
-
-		System.out.println("Enter Employee Salary: ");
-		double salary = ConsoleInputReader.nextDouble();
-		employeePayrollList.add(new EmployeePayroll(id, name, salary,LocalDate.now()));
-	}
-
-	void writeEmployeeData(IOService ioService) {
-		if(ioService.equals(IOService.CONSOLE_IO))
-			System.out.println("\nWriting Employee Payroll Roster to Console\n" + employeePayrollList);
-		
-		else if(ioService.equals(IOService.FILE_IO))
-			new EmployeePayrollFileIOService().writeData(employeePayrollList);
-	}
-		
+	
 	public void printData(IOService fileIo) {
+
 		if(fileIo.equals(IOService.FILE_IO)) new EmployeePayrollFileIOService().printData();
 	}
 
-
 	public long countEntries(IOService fileIo) {
-		if(fileIo.equals(IOService.FILE_IO)) return new EmployeePayrollFileIOService().countEntries();
-		
+		if(fileIo.equals(IOService.FILE_IO)) 
+			return new EmployeePayrollFileIOService().countEntries();
 		return 0;
 	}
-public long readDataFromFile(IOService fileIo) {
+	
+	void readEmployeePayrollData(Scanner consoleInputReader){
+		
+		System.out.println("Enter the Employee Id : ");
+		int id = consoleInputReader.nextInt();
+		System.out.println("Enter the Employee Name : ");
+		String name = consoleInputReader.next();
+		System.out.println("Enter the Employee Salary : ");
+		double salary = consoleInputReader.nextDouble();
+		
+		employeePayrollList.add(new EmployeePayroll(id, name, salary));
+	}
+	
+	private EmployeePayroll getEmployeePayrollData(String name) {
+		
+		return this.employeePayrollList.stream()
+				.filter(EmployeePayrollDataItem -> EmployeePayrollDataItem.name.equals(name))
+				.findFirst()
+				.orElse(null);
+	}
+	
+	public long readDataFromFile(IOService fileIo) {
 		
 		List<String> employeePayrollFromFile = new ArrayList<String>();
 		if(fileIo.equals(IOService.FILE_IO)) {
@@ -58,11 +65,39 @@ public long readDataFromFile(IOService fileIo) {
 		return employeePayrollFromFile.size();
 	}
 	
-	public List<EmployeePayroll> readEmployeePayrollData(IOService ioService) {
+	public List<EmployeePayroll>readEmployeePayrollData(IOService ioService) {
 		
 		if(ioService.equals(IOService.DB_IO))
-			this.employeePayrollList = new EmployeePayrollJDBC().readData();
+			this.employeePayrollList = employeePayrollDBService.readData();
 		return this.employeePayrollList;
 		
+	}	
+	
+	public void writeEmployeePayrollData(IOService ioService) {
+		if(ioService.equals(IOService.CONSOLE_IO))
+			System.out.println("\nWriting Employee Payroll Roster to Console\n" + employeePayrollList);
+		
+		else if(ioService.equals(IOService.FILE_IO))
+			new EmployeePayrollFileIOService().writeData(employeePayrollList);
+	}	
+	
+	public void updateEmployeeSalary(String name, double salary) {
+		
+		int result = employeePayrollDBService.updateEmployeeData(name,salary);
+		if(result == 0) 
+			return;
+		
+		EmployeePayroll employeePayrollData = this.getEmployeePayrollData(name);
+		if(employeePayrollData != null)
+			employeePayrollData.salary = salary;
+		
 	}
+	
+	public boolean checkEmployeePayrollInSyncWithDB(String name) {
+		
+		List<EmployeePayroll> employeePayrollDataList = employeePayrollDBService.getEmployeePayrollData(name);
+		return employeePayrollDataList.get(0).equals(getEmployeePayrollData(name));
+	}
+
+	
 }
