@@ -53,4 +53,24 @@ public class EmployeePayrollTest {
 			Assert.assertTrue(result);
 			
 		}
+		
+		@Test
+		public void givenName_WhenFound_ShouldReturnEmployeeDetails() {
+			
+			EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+			String name = "Bill Gates";
+			List<EmployeePayroll> employeePayrollData = employeePayrollService.getEmployeeDetailsBasedOnName(IOService.DB_IO, name);
+			String resultName = employeePayrollData.get(0).name;
+			Assert.assertEquals(name, resultName);
+		}
+		
+		@Test
+		public void givenStartDateRange_WhenMatches_ShouldReturnEmployeeDetails() {
+			
+			String startDate = "2013-01-01";
+			EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+			List<EmployeePayroll> employeePayrollData = employeePayrollService.getEmployeeDetailsBasedOnStartDate(IOService.DB_IO, startDate);
+			System.out.println(employeePayrollData.size());
+			Assert.assertEquals(1, employeePayrollData.size());
+		}
 }
