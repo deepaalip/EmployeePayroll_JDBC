@@ -98,6 +98,22 @@ public class EmployeePayrollService {
 		List<EmployeePayroll> employeePayrollDataList = employeePayrollDBService.getEmployeePayrollData(name);
 		return employeePayrollDataList.get(0).equals(getEmployeePayrollData(name));
 	}
-
 	
+	public List<EmployeePayroll> getEmployeeDetailsBasedOnStartDate(IOService ioService, String startDate) {
+		if(ioService.equals(IOService.DB_IO))
+			this.employeePayrollList = employeePayrollDBService.getEmployeeDetailsBasedOnStartDateUsingStatement(startDate);
+		return this.employeePayrollList;
+	}
+
+    public List<EmployeePayroll> getEmployeeDetailsBasedOnStartDateUsingPreparedStatement(IOService ioService, String startDate) {
+		
+		if(ioService.equals(IOService.DB_IO))
+			this.employeePayrollList = employeePayrollDBService.getEmployeeDetailsBasedOnStartDateUsingPreparedStatement(startDate);
+		return this.employeePayrollList;
+	}
+	public List<EmployeePayroll> getEmployeeDetailsBasedOnName(IOService ioService, String name) {
+		if(ioService.equals(IOService.DB_IO))
+			this.employeePayrollList = employeePayrollDBService.getEmployeeDetailsBasedOnNameUsingStatement(name);
+		return this.employeePayrollList;
+	}
 }
